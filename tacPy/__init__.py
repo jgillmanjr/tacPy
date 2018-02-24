@@ -108,6 +108,7 @@ class Method:
         full_url = self.base_url + encoded_params
 
         self.last_response = requests.get(url=full_url)
+        return self.last_response
 
 
 class EmptyObj:
