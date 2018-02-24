@@ -11,5 +11,8 @@ setup(
     author='Jason Gillman Jr.',
     author_email='jason@rrfaae.com',
     description='A library for working with the Talend Administration Center API',
-    install_requires=['requests']
+    install_requires=['requests'],
+    package_data={
+        'tacPy': ['full_tac_api_help.txt.example']
+    }
 )
