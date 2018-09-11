@@ -9,17 +9,14 @@ import json
 import base64
 import os
 
-INCLUDED_HELP_LOCATION = os.path.dirname(__file__) + '/full_tac_api_help.txt.example'
+INCLUDED_HELP_LOCATION = os.path.dirname(__file__) + '/full_tac_api_help.txt.example'  # Deprecated - For Reference
 
 
-def process_help_file(help_file_location=INCLUDED_HELP_LOCATION):
+def process_help_file(help_text):
     """
     Returns a dictionary sort of representing important bits from the API help output
     """
-    with open(help_file_location) as hf:
-        help_file = hf.read()
-
-    split_help = help_file.splitlines()
+    split_help = help_text.splitlines()
 
     command_dict = {}
     in_sample = False
@@ -69,12 +66,30 @@ def process_help_file(help_file_location=INCLUDED_HELP_LOCATION):
 
 
 class Client:
-    def __init__(self, tac_host, help_file_location=INCLUDED_HELP_LOCATION, auth_pass=None, auth_user=None,
+    def _build_help(self):
+        """
+        This basically builds the help file as seen in the example
+        :return:
+        """
+        h = Method(base_url=self.base_url, action_name='help', requires_auth=False,
+                   auth_user=self.auth_user, auth_pass=self.auth_pass, response_codes={})
+
+        api_help_text = ''
+
+        for l in h().json()['help'].splitlines():
+            sl = l.strip()
+            if len(sl) > 0 and sl[0] == '*':
+                c = sl.split()[1]
+                api_help_text += h(commandName=c).json()['help']
+
+        return api_help_text
+
+    def __init__(self, tac_host, auth_pass=None, auth_user=None,
                  tac_name='org.talend.administrator', tac_port='8080', protocol='http'):
         self.auth_pass = auth_pass
         self.auth_user = auth_user
         self.base_url = protocol + '://' + tac_host + ':' + tac_port + '/' + tac_name + '/metaServlet?'
-        self.help_file = process_help_file(help_file_location)
+        self.help_file = process_help_file(self._build_help())
 
         self.endpoint = EmptyObj()
         for command, data in self.help_file.items():

@@ -32,10 +32,7 @@ for r.json()['result']:
 
 ### The Details ###
 
-When a `Client` object is initiated, the "help" output is processed. This
-library ships with a copy that I generated, which is used by default. If
-you want to supply your own copy (see the reference docs), specify the
-location to the file by way of the `help_file_location` argument.
+When a `Client` object is initiated, the `help` API method is called and output is processed.
 
 This builds a list of attributes under the `endpoint` attribute of the
 `Client` object that represent the various methods available. Which can
