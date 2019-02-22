@@ -46,11 +46,13 @@ def process_help_file(help_text):
             if line.strip() == '':
                 in_sample = False
                 command_dict[current_command]['sample'] = '\n'.join(sample_line_list)
+                sample_line_list = []
                 continue
             if ss[0].strip() == 'Specific error codes':
                 in_sample = False
                 in_ec = True
                 command_dict[current_command]['sample'] = '\n'.join(sample_line_list)
+                sample_line_list = []
                 continue
 
             sample_line_list.append(line)
@@ -72,7 +74,7 @@ class Client:
         :return:
         """
         h = Method(base_url=self.base_url, action_name='help', requires_auth=False,
-                   auth_user=self.auth_user, auth_pass=self.auth_pass, response_codes={})
+                   auth_user=self.auth_user, auth_pass=self.auth_pass, response_codes={}, sample=None)
 
         api_help_text = ''
 
@@ -97,14 +99,16 @@ class Client:
                 self.endpoint,
                 command,
                 Method(base_url=self.base_url, action_name=command, requires_auth=data['require_auth'],
-                       auth_user=self.auth_user, auth_pass=self.auth_pass, response_codes=data['spec_error_codes'])
+                       auth_user=self.auth_user, auth_pass=self.auth_pass, response_codes=data['spec_error_codes'],
+                       sample=data['sample'])
             )
 
 
 class Method:
-    def __init__(self, base_url, action_name, requires_auth, auth_user, auth_pass, response_codes):
+    def __init__(self, base_url, action_name, requires_auth, auth_user, auth_pass, response_codes, sample):
         self.last_response = None
         self.response_codes = response_codes
+        self.__doc__ = 'Sample params for {an}:\n\n{s}'.format(an=action_name, s=sample)
         self.base_url = base_url
         self.base_params = {
             'actionName': action_name
@@ -124,6 +128,29 @@ class Method:
 
         self.last_response = requests.get(url=full_url)
         return self.last_response
+
+    def jr(self, **kwargs):
+        """
+        Return the dict of the return instead of the requests object
+        :param kwargs:
+        :return: dict
+        """
+        return self(**kwargs).json()
+
+    def print_sample(self):
+        """
+        Print it on the fly
+        :return:
+        """
+        print(self.__doc__)
+        return None
+
+    def return_sample(self):
+        """
+        For when you want to return the sample as a string
+        :return:
+        """
+        return self.__doc__
 
 
 class EmptyObj:
