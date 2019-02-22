@@ -26,8 +26,21 @@ tac = tacPy.Client(tac_host='your.tachost.com', tac_name='org.talend.administrat
 
 r = tac.endpoint.listTasks()
 
-for r.json()['result']:
+for task in r.json()['result']:
     print('Project: {project} Task: {label} taskId: {id}'.format(project=task['projectName'], label=task['label'], id=task['id']))
+```
+
+Addtionally, the `jr` method is available, which returns the dict directly:
+```
+for task in tac.endpoint.listTasks.jr():
+    print('Project: {project} Task: {label} taskId: {id}'.format(project=task['projectName'], label=task['label'], id=task['id']))
+```
+
+Pass in params like so:
+```
+tl_req_obj = tac.endpoint.taskLog(taskId=123)
+
+task_log_data = tac.endpoint.taskLog.jr(taskId=123)
 ```
 
 ### The Details ###
